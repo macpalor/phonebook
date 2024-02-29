@@ -1,0 +1,2 @@
+GET http://localhost:3001/info
+#GET https://phonebook-macpalor.fly.dev/info

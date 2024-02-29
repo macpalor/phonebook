@@ -42,11 +42,13 @@ let persons = [
 ]  
 
 app.get('/info', (request, response) => {
-    message = ` 
-        <p>Phonebook has info for ${persons.length} people</p>
-        <p>${Date().toString()}</p>`
-    
-    response.send(message)
+    Person.find().then(people => {
+        message = ` 
+            <p>Phonebook has info for ${people.length} people</p>
+            <p>${Date().toString()}</p>`
+        
+        response.send(message)
+    })
 })
 
 app.get('/api/persons', (request, response) => {
@@ -71,7 +73,7 @@ app.delete('/api/persons/:id', (request, response) => {
     const deleted = persons.find(item => item.id === id)
     persons = persons.filter(person => person.id !== id)
 
-    response.status(204).json(deleted)
+    response.json(deleted)
 })
 
 app.post('/api/persons', (request, response) => {
@@ -85,19 +87,21 @@ app.post('/api/persons', (request, response) => {
         return response.status(400).json({error: 'number missing'})
     }
 
-    if (persons.some(person => JSON.stringify(person.name) === JSON.stringify(body.name))) {
-        return response.status(400).json({error: 'name must be unique'})
-    }
+    // if (persons.some(person => JSON.stringify(person.name) === JSON.stringify(body.name))) {
+    //     return response.status(400).json({error: 'name must be unique'})
+    // }
 
-    const person = {
-        id: Math.round(Math.random()*10000000),
+    const person = new Person({
         name: body.name,
         number: body.number
-    }
+    })
 
-    persons = persons.concat(person)
-    console.log('person is', person)
-    response.json(person)
+    //persons = persons.concat(person)
+    //console.log('person is', person)
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
+    
 })
 
 const PORT = process.env.PORT
